@@ -1,2 +1,7 @@
 
 Flask
+
+Flask
+pytest
+pytest-cov
+flake8
