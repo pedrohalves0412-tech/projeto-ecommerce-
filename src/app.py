@@ -17,5 +17,14 @@ def inicio():
 def listar_produtos():
     return jsonify(produtos)
 
+@app.route("/produtos/<int:id>")
+def buscar_produto(id):
+    produto = next((p for p in produtos if p["id"] == id), None)
+
+    if produto:
+        return jsonify(produto)
+
+    return jsonify({"erro": "Produto não encontrado"}), 404
+
 if __name__ == "__main__":
     app.run(debug=True)
