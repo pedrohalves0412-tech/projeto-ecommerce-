@@ -51,7 +51,8 @@ jobs:
           docker run -d --name loja-facil -p 5000:5000 loja-facil:1.0
           docker ps
 
-      - name: Testar aplicacao no Docker
+           - name: Testar aplicacao no Docker
         run: |
-          curl --retry 10 --retry-connrefused --retry-delay 2 --fail http://localhost:5000/
+          sleep 10
           docker logs loja-facil
+          curl --retry 10 --retry-all-errors --retry-delay 2 --fail http://localhost:5000/
