@@ -1,0 +1,24 @@
+---
+- name: Preparar ambiente Loja Facil
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  tasks:
+    - name: Criar diretorio da aplicacao
+      ansible.builtin.file:
+        path: /tmp/loja-facil
+        state: directory
+        mode: '0755'
+
+    - name: Criar arquivo de configuracao
+      ansible.builtin.copy:
+        dest: /tmp/loja-facil/config.env
+        content: |
+          APP_NAME=Loja Facil
+          APP_PORT=5000
+          APP_ENV=development
+
+    - name: Confirmar configuracao
+      ansible.builtin.debug:
+        msg: "Ambiente Loja Facil configurado!"

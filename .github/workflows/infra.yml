@@ -1,0 +1,56 @@
+name: Infraestrutura - Loja Facil
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  infraestrutura:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Baixar codigo
+        uses: actions/checkout@v4
+
+      - name: Configurar Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Executar Terraform
+        working-directory: infrastructure/terraform
+        run: |
+          terraform init
+          terraform validate
+          terraform apply -auto-approve
+
+      - name: Instalar Ansible
+        run: pipx install ansible
+
+      - name: Executar Ansible
+        run: ansible-playbook infrastructure/ansible/playbook.yml
+
+      - name: Criar cluster Kubernetes
+        uses: helm/kind-action@v1
+        with:
+          cluster_name: loja-facil
+
+      - name: Construir imagem Docker
+        run: |
+          docker build -t loja-facil:1.0 .
+          kind load docker-image loja-facil:1.0 --name loja-facil
+
+      - name: Executar Kubernetes
+        run: |
+          kubectl apply -f infrastructure/kubernetes/
+          kubectl rollout status deployment/loja-facil --timeout=180s
+          kubectl get pods
+          kubectl get services
+
+      - name: Demonstrar escalabilidade
+        run: |
+          kubectl scale deployment loja-facil --replicas=3
+          kubectl rollout status deployment/loja-facil --timeout=180s
+          kubectl get pods
+          kubectl scale deployment loja-facil --replicas=10
+          kubectl rollout status deployment/loja-facil --timeout=180s
+          kubectl get pods
